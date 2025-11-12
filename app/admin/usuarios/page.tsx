@@ -167,7 +167,7 @@ export default function AdminUsuariosPage() {
                     <div className="space-y-2">
                       <Label className="font-heading">Permisos</Label>
                       <div className="space-y-2">
-                        {['usuarios', 'apadrinamientos', 'donaciones', 'reportes'].map((permiso) => (
+                        {["usuarios", "apadrinamientos", "donaciones", "reportes"].map((permiso) => (
                           <div key={permiso} className="flex items-center justify-between p-3 border rounded-lg">
                             <span className="capitalize">{permiso}</span>
                             <Switch
@@ -224,7 +224,11 @@ export default function AdminUsuariosPage() {
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {admin.permisos.map((permiso) => (
-                            <Badge key={permiso} variant="secondary" className="bg-[#F6C344]/20 text-[#1E1E1E] capitalize">
+                            <Badge
+                              key={permiso}
+                              variant="secondary"
+                              className="bg-[#F6C344]/20 text-[#1E1E1E] capitalize"
+                            >
                               {permiso}
                             </Badge>
                           ))}

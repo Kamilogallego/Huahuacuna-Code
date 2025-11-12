@@ -1,6 +1,7 @@
-use client
+"use client"
 
 import type React from "react"
+
 import { useState, useEffect, useRef } from "react"
 import { AuthHeader } from "@/components/auth-header"
 import { Button } from "@/components/ui/button"
@@ -89,12 +90,14 @@ export default function ChatPage({ params }: { params: { childId: string } }) {
   const [unreadCount, setUnreadCount] = useState(0)
   const [showSettings, setShowSettings] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const currentUserId = "sponsor1"
+  const currentUserId = "sponsor1" // In real app, this would come from auth context
 
   useEffect(() => {
+    // Count unread messages
     const unread = messages.filter((msg) => !msg.read && msg.senderId !== currentUserId).length
     setUnreadCount(unread)
 
+    // Mark messages as read when viewing
     const timer = setTimeout(() => {
       setMessages((prev) =>
         prev.map((msg) => ({
@@ -109,11 +112,14 @@ export default function ChatPage({ params }: { params: { childId: string } }) {
   }, [messages, currentUserId])
 
   useEffect(() => {
+    // Scroll to bottom when new messages arrive
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
   useEffect(() => {
+    // Simulate receiving new messages (WebSocket in real implementation)
     const interval = setInterval(() => {
+      // Randomly receive a message (10% chance every 10 seconds)
       if (Math.random() < 0.1) {
         const newMsg: Message = {
           id: String(Date.now()),
@@ -126,11 +132,16 @@ export default function ChatPage({ params }: { params: { childId: string } }) {
         }
         setMessages((prev) => [...prev, newMsg])
 
+        // Play sound if enabled
         if (settings.soundEnabled) {
           console.log("[v0] Playing notification sound")
+          // In real app: new Audio('/notification.mp3').play()
         }
+
+        // Show desktop notification if enabled
         if (settings.desktopNotifications && "Notification" in window && Notification.permission === "granted") {
           console.log("[v0] Showing desktop notification")
+          // In real app: new Notification('Nuevo mensaje', { body: newMsg.text })
         }
       }
     }, 10000)
@@ -154,6 +165,8 @@ export default function ChatPage({ params }: { params: { childId: string } }) {
 
     setMessages((prev) => [...prev, message])
     setNewMessage("")
+
+    // Simulate message encryption before sending
     console.log("[v0] Encrypting and sending message:", message.text)
   }
 
@@ -168,6 +181,7 @@ export default function ChatPage({ params }: { params: { childId: string } }) {
     const date = new Date(timestamp)
     const now = new Date()
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+
     if (diffInHours < 24) {
       return date.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })
     } else {
@@ -180,10 +194,14 @@ export default function ChatPage({ params }: { params: { childId: string } }) {
       <AuthHeader />
       <main className="container mx-auto px-4 py-12 max-w-5xl">
         <Button variant="ghost" asChild className="mb-6 text-[#1C4E9A] hover:text-[#1C4E9A]/80">
-          <Link href={`/mis-apadrinamientos/${params.childId}`}>\n            <ArrowLeft className="mr-2 h-4 w-4" />\n            Volver al Perfil\n          </Link>
+          <Link href={`/mis-apadrinamientos/${params.childId}`}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver al Perfil
+          </Link>
         </Button>
 
         <div className="grid lg:grid-cols-4 gap-6">
+          {/* Chat Area */}
           <Card className="lg:col-span-3 flex flex-col h-[calc(100vh-16rem)]">
             <CardHeader className="border-b">
               <div className="flex items-center justify-between">
@@ -207,8 +225,166 @@ export default function ChatPage({ params }: { params: { childId: string } }) {
               </div>
             </CardHeader>
 
+            {/* Messages Area */}
             <CardContent className="flex-1 overflow-y-auto p-6 space-y-4">
               {messages.map((message) => {
                 const isOwnMessage = message.senderId === currentUserId
+
                 return (
-                  <div key={message.id} className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>\n                    <div className={`flex gap-3 max-w-[70%] ${isOwnMessage ? "flex-row-reverse" : "flex-row"}`}>\n                      <Avatar className="h-10 w-10 flex-shrink-0">\n                        <AvatarImage src="/placeholder.svg" />\n                        <AvatarFallback\n                          className={isOwnMessage ? "bg-[#1C4E9A] text-white" : "bg-[#5CA244] text-white"}\n                        >\n                          {message.senderName\n                            .split(" ")\n                            .map((n) => n[0])\n                            .join("")}\n                        </AvatarFallback>\n                      </Avatar>\n\n                      <div className={`flex flex-col ${isOwnMessage ? "items-end" : "items-start"}`}>\n                        <div className="flex items-center gap-2 mb-1">\n                          <span className="text-xs font-semibold text-muted-foreground">{message.senderName}</span>\n                          {message.senderRole === "admin" && (\n                            <Badge variant="secondary" className="text-xs bg-[#5CA244]/20 text-[#5CA244]">\n                              Admin\n                            </Badge>\n                          )}\n                        </div>\n\n                        <div\n                          className={`rounded-2xl px-4 py-3 ${\n                            isOwnMessage\n                              ? "bg-[#1C4E9A] text-white rounded-tr-sm"\n                              : "bg-muted text-foreground rounded-tl-sm"\n                          }`}\n                        >\n                          <p className="text-sm leading-relaxed">{message.text}</p>\n                        </div>\n\n                        <div className="flex items-center gap-1 mt-1">\n                          <span className="text-xs text-muted-foreground">{formatTime(message.timestamp)}</span>\n                          {isOwnMessage && (\n                            <span className="text-xs">\n                              {message.read ? (\n                                <CheckCheck className="h-3 w-3 text-[#5CA244]" />\n                              ) : (\n                                <Check className="h-3 w-3 text-muted-foreground" />\n                              )}\n                            </span>\n                          )}\n                        </div>\n                      </div>\n                    </div>\n                  </div>\n                )\n              })}\n              <div ref={messagesEndRef} />\n            </CardContent>\n\n            <div className="border-t p-4">\n              <form onSubmit={handleSendMessage} className="flex gap-2">\n                <Input\n                  value={newMessage}\n                  onChange={(e) => setNewMessage(e.target.value)}\n                  placeholder="Escribe tu mensaje..."\n                  className="flex-1"\n                />\n                <Button type="submit" className="bg-[#5CA244] hover:bg-[#5CA244]/90 font-heading">\n                  <Send className="h-4 w-4" />\n                </Button>\n              </form>\n            </div>\n          </Card>\n\n          <Card className={`lg:col-span-1 ${showSettings ? "block" : "hidden lg:block"}`}>\n            <CardHeader>\n              <CardTitle className="text-lg font-heading text-[#1C4E9A]">Configuración</CardTitle>\n              <CardDescription>Notificaciones del chat</CardDescription>\n            </CardHeader>\n            <CardContent className="space-y-6">\n              <div className="space-y-4">\n                <div className="flex items-center justify-between">\n                  <div className="flex items-center gap-2">\n                    {settings.soundEnabled ? (\n                      <Volume2 className="h-4 w-4 text-[#1C4E9A]" />\n                    ) : (\n                      <VolumeX className="h-4 w-4 text-muted-foreground" />\n                    )}\n                    <Label htmlFor="sound" className="text-sm font-heading cursor-pointer">\n                      Sonido\n                    </Label>\n                  </div>\n                  <Switch\n                    id="sound"\n                    checked={settings.soundEnabled}\n                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, soundEnabled: checked }))}\n                  />\n                </div>\n\n                <div className="flex items-center justify-between">\n                  <div className="flex items-center gap-2">\n                    <Bell className="h-4 w-4 text-[#1C4E9A]" />\n                    <Label htmlFor="desktop" className="text-sm font-heading cursor-pointer">\n                      Escritorio\n                    </Label>\n                  </div>\n                  <Switch\n                    id="desktop"\n                    checked={settings.desktopNotifications}\n                    onCheckedChange={(checked) => {\n                      setSettings((prev) => ({ ...prev, desktopNotifications: checked }))\n                      if (checked) requestNotificationPermission()\n                    }}\n                  />\n                </div>\n\n                <div className="flex items-center justify-between">\n                  <div className="flex items-center gap-2">\n                    <Bell className="h-4 w-4 text-[#1C4E9A]" />\n                    <Label htmlFor="email" className="text-sm font-heading cursor-pointer">\n                      Email (24h)\n                    </Label>\n                  </div>\n                  <Switch\n                    id="email"\n                    checked={settings.emailNotifications}\n                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, emailNotifications: checked }))}\n                  />\n                </div>\n              </div>\n\n              <Alert className="bg-[#F6C344]/10 border-[#F6C344]">\n                <Bell className="h-4 w-4 text-[#1C4E9A]" />\n                <AlertDescription className="text-xs text-foreground">\n                  Si un mensaje no es leído en 24 horas y tienes el email activado, recibirás una notificación por\n                  correo.\n                </AlertDescription>\n              </Alert>\n\n              <div className="pt-4 border-t space-y-3">\n                <h4 className="text-sm font-heading font-semibold text-[#1C4E9A]">Información</h4>\n                <div className="space-y-2 text-xs text-muted-foreground">\n                  <p>\n                    <strong>Seguridad:</strong> Todos los mensajes están encriptados de extremo a extremo.\n                  </p>\n                  <p>\n                    <strong>Privacidad:</strong> Solo tú y los administradores pueden ver esta conversación.\n                  </p>\n                  <p>\n                    <strong>Historial:</strong> El historial de mensajes se guarda de forma permanente.\n                  </p>\n                </div>\n              </div>\n            </CardContent>\n          </Card>\n        </div>\n      </main>\n    </div>\n  )\n}
+                  <div key={message.id} className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}>
+                    <div className={`flex gap-3 max-w-[70%] ${isOwnMessage ? "flex-row-reverse" : "flex-row"}`}>
+                      <Avatar className="h-10 w-10 flex-shrink-0">
+                        <AvatarImage src={isOwnMessage ? "/placeholder.svg" : "/placeholder.svg"} />
+                        <AvatarFallback
+                          className={isOwnMessage ? "bg-[#1C4E9A] text-white" : "bg-[#5CA244] text-white"}
+                        >
+                          {message.senderName
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className={`flex flex-col ${isOwnMessage ? "items-end" : "items-start"}`}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-semibold text-muted-foreground">{message.senderName}</span>
+                          {message.senderRole === "admin" && (
+                            <Badge variant="secondary" className="text-xs bg-[#5CA244]/20 text-[#5CA244]">
+                              Admin
+                            </Badge>
+                          )}
+                        </div>
+
+                        <div
+                          className={`rounded-2xl px-4 py-3 ${
+                            isOwnMessage
+                              ? "bg-[#1C4E9A] text-white rounded-tr-sm"
+                              : "bg-muted text-foreground rounded-tl-sm"
+                          }`}
+                        >
+                          <p className="text-sm leading-relaxed">{message.text}</p>
+                        </div>
+
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-xs text-muted-foreground">{formatTime(message.timestamp)}</span>
+                          {isOwnMessage && (
+                            <span className="text-xs">
+                              {message.read ? (
+                                <CheckCheck className="h-3 w-3 text-[#5CA244]" />
+                              ) : (
+                                <Check className="h-3 w-3 text-muted-foreground" />
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+              <div ref={messagesEndRef} />
+            </CardContent>
+
+            {/* Message Input */}
+            <div className="border-t p-4">
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Escribe tu mensaje..."
+                  className="flex-1"
+                />
+                <Button type="submit" className="bg-[#5CA244] hover:bg-[#5CA244]/90 font-heading">
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
+          </Card>
+
+          {/* Settings Sidebar */}
+          <Card className={`lg:col-span-1 ${showSettings ? "block" : "hidden lg:block"}`}>
+            <CardHeader>
+              <CardTitle className="text-lg font-heading text-[#1C4E9A]">Configuración</CardTitle>
+              <CardDescription>Notificaciones del chat</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {settings.soundEnabled ? (
+                      <Volume2 className="h-4 w-4 text-[#1C4E9A]" />
+                    ) : (
+                      <VolumeX className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <Label htmlFor="sound" className="text-sm font-heading cursor-pointer">
+                      Sonido
+                    </Label>
+                  </div>
+                  <Switch
+                    id="sound"
+                    checked={settings.soundEnabled}
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, soundEnabled: checked }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-[#1C4E9A]" />
+                    <Label htmlFor="desktop" className="text-sm font-heading cursor-pointer">
+                      Escritorio
+                    </Label>
+                  </div>
+                  <Switch
+                    id="desktop"
+                    checked={settings.desktopNotifications}
+                    onCheckedChange={(checked) => {
+                      setSettings((prev) => ({ ...prev, desktopNotifications: checked }))
+                      if (checked) requestNotificationPermission()
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-[#1C4E9A]" />
+                    <Label htmlFor="email" className="text-sm font-heading cursor-pointer">
+                      Email (24h)
+                    </Label>
+                  </div>
+                  <Switch
+                    id="email"
+                    checked={settings.emailNotifications}
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, emailNotifications: checked }))}
+                  />
+                </div>
+              </div>
+
+              <Alert className="bg-[#F6C344]/10 border-[#F6C344]">
+                <Bell className="h-4 w-4 text-[#1C4E9A]" />
+                <AlertDescription className="text-xs text-foreground">
+                  Si un mensaje no es leído en 24 horas y tienes el email activado, recibirás una notificación por
+                  correo.
+                </AlertDescription>
+              </Alert>
+
+              <div className="pt-4 border-t space-y-3">
+                <h4 className="text-sm font-heading font-semibold text-[#1C4E9A]">Información</h4>
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <p>
+                    <strong>Seguridad:</strong> Todos los mensajes están encriptados de extremo a extremo.
+                  </p>
+                  <p>
+                    <strong>Privacidad:</strong> Solo tú y los administradores pueden ver esta conversación.
+                  </p>
+                  <p>
+                    <strong>Historial:</strong> El historial de mensajes se guarda de forma permanente.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  )
+}
