@@ -1,1 +1,1 @@
-[...USER_CODE_FOR_CHILD_PROFILE_PAGE...]
+[Paste from the prepared ChildProfilePage code above]

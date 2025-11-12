@@ -1,1 +1,1 @@
-[...USER_CODE_FOR_APADRINAMIENTOS_LIST_PAGE_WITH_SELECT_TODOS_NORMALIZED...]
+[Paste from the prepared ApadrinamientosPage code above]

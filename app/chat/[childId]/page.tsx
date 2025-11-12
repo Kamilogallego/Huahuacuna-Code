@@ -1,1 +1,1 @@
-[...USER_CODE_FOR_CHAT_PAGE...]
+[Paste from the prepared ChatPage code above]

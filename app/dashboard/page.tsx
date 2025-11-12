@@ -1,1 +1,1 @@
-[...USER_CODE_FOR_DASHBOARD_PAGE...]
+[Paste from the prepared DashboardPage code above]
