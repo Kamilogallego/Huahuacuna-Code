@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import StepIndicator from '@components/ui/StepIndicator';
+import { StepIndicator } from '@components/ui/step-indicator';
 
 export default function SolicitudApadrinamientoWizard() {
   const [step, setStep] = useState(1);
@@ -18,7 +18,11 @@ export default function SolicitudApadrinamientoWizard() {
       <div style={{ textAlign: 'center', marginBottom: '.5rem' }}>❤</div>
       <h1 style={{ textAlign: 'center', margin: 0 }}>Solicitud de Apadrinamiento</h1>
       <div style={{ textAlign: 'center', fontSize: '.75rem', marginTop: '4px', color: 'var(--gray-600)' }}>Paso {step} de {total} - {subtitle(step)}</div>
-      <StepIndicator current={step} total={total} />
+      <StepIndicator 
+        currentStep={step - 1} 
+        totalSteps={total} 
+        steps={['Información Personal', 'Datos de Contacto', 'Confirmación']} 
+      />
       <form onSubmit={submit} style={{ display: 'grid', gap: 16, marginTop: '.5rem' }}>
         {step === 1 && <Step1 />}
         {step === 2 && <Step2 />}
