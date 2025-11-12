@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { apadrinamientosMock } from '@lib/apadrinamientosMock';
 import { useParams, useRouter } from 'next/navigation';
-import { Tabs } from '@components/ui/tabs';
+import { Tabs } from '@components/TabsWrapper';
 
 export default function PerfilApadrinadoPage() {
   const { id } = useParams();
