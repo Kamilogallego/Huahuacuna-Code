@@ -1,0 +1,1 @@
+{"name":"fundacion-huahuacuna","version":"1.0.0","private":true,"scripts":{"dev":"next dev -p 3000","build":"next build","start":"next start","lint":"next lint"},"dependencies":{"lucide-react":"latest","next":"^14.0.0","react":"^18.0.0","react-dom":"^18.0.0","react-hot-toast":"latest","typescript":"^5.0.0"}}
