@@ -7,7 +7,7 @@ import Button from '@components/Button';
 import Modal from '@components/Modal';
 import Input from '@components/Input';
 import Textarea from '@components/Textarea';
-import { Badge } from '@components/ui/Badge';
+import Badge from '@components/Badge';
 
 interface Nino {
   id: number;
@@ -48,8 +48,8 @@ export default function AdminNinosPage() {
         edad: n.edad ?? 0,
         descripcion: n.descripcion ?? '',
         necesidades: Array.isArray(n.necesidades) ? n.necesidades.join('\n') : (n.necesidades as any as string) ?? '',
-        estado: n.estado === 'apadrinado' || n.estado === 'activo' ? 'apadrinado' : 'disponible',
-        apadrinado: n.estado === 'apadrinado' || n.estado === 'activo'
+        estado: ((n as any).estado === 'apadrinado' || (n as any).estado === 'activo' ? 'apadrinado' : 'disponible') as 'apadrinado' | 'disponible',
+        apadrinado: (n as any).estado === 'apadrinado' || (n as any).estado === 'activo'
       })),
     []
   );

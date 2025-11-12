@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import React from 'react';
 import { Apadrinamiento } from '@lib/apadrinamientosMock';
-import { Badge } from '@components/ui/Badge';
+import Badge from '@components/Badge';
 
 export default function ApadrinadoCard({ data }: { data: Apadrinamiento }) {
   const { child } = data;

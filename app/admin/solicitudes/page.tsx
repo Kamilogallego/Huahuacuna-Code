@@ -6,7 +6,7 @@ import Table from '@components/Table';
 import Button from '@components/Button';
 import Modal from '@components/Modal';
 import Textarea from '@components/Textarea';
-import { Badge } from '@components/ui/Badge';
+import Badge from '@components/Badge';
 
 type Solicitud = typeof solicitudesMock[number];
 type Estado = 'pendiente' | 'aprobada' | 'rechazada';

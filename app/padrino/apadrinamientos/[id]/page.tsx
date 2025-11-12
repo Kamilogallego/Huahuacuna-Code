@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { apadrinamientosMock } from '@lib/apadrinamientosMock';
 import { useParams, useRouter } from 'next/navigation';
-import { Tabs } from '@components/ui/Tabs';
+import { Tabs } from '@components/ui/tabs';
 
 export default function PerfilApadrinadoPage() {
   const { id } = useParams();
@@ -23,7 +23,7 @@ export default function PerfilApadrinadoPage() {
         display: 'flex', flexDirection: 'column', gap: 12
       }}>
         <img src={child.foto} alt={child.nombre} style={{ width: '100%', height: 220, objectFit: 'cover', borderRadius: 12 }} />
-        <h2 style={{ margin: 0 }}>{child.nombre} {child.apellido ?? ''}</h2>
+        <h2 style={{ margin: 0 }}>{child.nombre}</h2>
         <div style={{ fontSize: '.7rem', color: 'var(--gray-700)', display: 'flex', flexDirection: 'column', gap: 2 }}>
           <span>🗓️ {child.edad} años</span>
           <span>📍 {child.municipio}, Quindío</span>

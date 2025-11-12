@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { donacionesMock, Donacion } from '@lib/mockData';
 import Table from '@components/Table';
 import Button from '@components/Button';
-import { Badge } from '@components/ui/Badge';
+import Badge from '@components/Badge';
 
 export default function AdminDonacionesPage() {
   // Creamos un estado mutable copiando el mock (ya no es readonly el array).
