@@ -1,103 +1,119 @@
-use client
+"use client"
 
-import Link from "next/link"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { AuthHeader } from "@/components/auth-header"
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { MessageCircle, HeartHandshake, Bell, LayoutDashboard } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Heart, Shield, User } from "lucide-react"
+import Link from "next/link"
 
 export default function DashboardPage() {
-  const sponsoredCount = 1
-  const unreadMessages = 1
-  const nextEvent = "Visita comunitaria - 25 Nov"
+  const router = useRouter()
+
+  useEffect(() => {
+    const userEmail = localStorage.getItem("userEmail")
+
+    // If user is a sponsor (padrino), redirect to sponsor profile
+    if (userEmail === "padrino@huahuacuna.org") {
+      router.push("/perfil-apadrinador")
+      return
+    }
+
+    // If no user is logged in, redirect to login
+    if (!userEmail) {
+      router.push("/login")
+      return
+    }
+  }, [router])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F6C344]/10 via-background to-[#5CA244]/10">
+    <div className="min-h-screen bg-gradient-to-br from-[#F6C344]/10 via-background to-[#1C4E9A]/10">
       <AuthHeader />
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-heading text-[#1C4E9A]">Mi Panel</h1>
-          <p className="text-muted-foreground">Resumen de tu impacto y acciones rápidas.</p>
+          <h1 className="text-4xl md:text-5xl font-heading font-bold text-[#1C4E9A] mb-4">Dashboard Administrativo</h1>
+          <p className="text-lg text-muted-foreground">Panel de control para administradores</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#1C4E9A]">
-                <HeartHandshake className="h-5 w-5" /> Apadrinamientos
-              </CardTitle>
-              <CardDescription>Niños y niñas apadrinados</CardDescription>
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-[#1C4E9A]/10 rounded-lg">
+                  <User className="h-6 w-6 text-[#1C4E9A]" />
+                </div>
+                <div>
+                  <CardTitle className="font-heading text-[#1C4E9A]">Mi Perfil</CardTitle>
+                  <CardDescription>Gestiona tu información</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-heading">{sponsoredCount}</div>
-              <div className="mt-4">
-                <Button asChild className="bg-[#5CA244] hover:bg-[#5CA244]/90 font-heading">
-                  <Link href="/apadrinamientos">Explorar más</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#1C4E9A]">
-                <MessageCircle className="h-5 w-5" /> Mensajes
-              </CardTitle>
-              <CardDescription>Conversaciones con admins</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-baseline gap-2">
-                <div className="text-4xl font-heading">{unreadMessages}</div>
-                {unreadMessages > 0 && <Badge className="bg-[#C33B2A]">sin leer</Badge>}
-              </div>
-              <div className="mt-4">
-                <Button asChild variant="outline">
-                  <Link href="/chat/sofia">Ir al chat</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#1C4E9A]">
-                <Bell className="h-5 w-5" /> Próximo
-              </CardTitle>
-              <CardDescription>Eventos o recordatorios</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg">{nextEvent}</div>
-              <div className="mt-4">
-                <Button asChild variant="ghost" className="text-[#1C4E9A]">
-                  <Link href="/notificaciones">Ver notificaciones</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mt-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#1C4E9A]">
-                <LayoutDashboard className="h-5 w-5" /> Acciones rápidas
-              </CardTitle>
-              <CardDescription>Empieza por aquí</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-3">
-              <Button asChild>
-                <Link href="/apadrinamientos">Buscar a quién apoyar</Link>
+              <Button asChild className="w-full bg-[#1C4E9A] hover:bg-[#1C4E9A]/90 font-heading">
+                <Link href="/perfil">Ver Perfil</Link>
               </Button>
-              <Button asChild variant="outline">
-                <Link href="/perfil">Actualizar mi perfil</Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-[#5CA244]/10 rounded-lg">
+                  <Heart className="h-6 w-6 text-[#5CA244]" />
+                </div>
+                <div>
+                  <CardTitle className="font-heading text-[#1C4E9A]">Apadrinamientos</CardTitle>
+                  <CardDescription>Gestionar apadrinamientos</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full border-[#5CA244] text-[#5CA244] font-heading bg-transparent"
+              >
+                <Link href="/admin/apadrinamientos">Ver Historial</Link>
               </Button>
-              <Button asChild variant="secondary">
-                <Link href="/ayuda">Centro de ayuda</Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-[#F6C344]/10 rounded-lg">
+                  <Shield className="h-6 w-6 text-[#F6C344]" />
+                </div>
+                <div>
+                  <CardTitle className="font-heading text-[#1C4E9A]">Usuarios</CardTitle>
+                  <CardDescription>Gestión de usuarios</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full border-[#1C4E9A] text-[#1C4E9A] font-heading bg-transparent"
+              >
+                <Link href="/admin/usuarios">Gestionar Usuarios</Link>
               </Button>
             </CardContent>
           </Card>
         </div>
+
+        <Card className="mt-8 bg-gradient-to-r from-[#1C4E9A] to-[#5CA244] text-white">
+          <CardHeader>
+            <CardTitle className="text-2xl font-heading">Panel Administrativo</CardTitle>
+            <CardDescription className="text-white/90">Fundación Huahuacuna</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-white/90 leading-relaxed">
+              Desde aquí puedes gestionar usuarios, apadrinamientos y toda la información de la fundación.
+            </p>
+          </CardContent>
+        </Card>
       </main>
     </div>
   )
