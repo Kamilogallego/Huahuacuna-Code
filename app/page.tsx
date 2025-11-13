@@ -1,25 +1,25 @@
-use client
+"use client"
 
-import { AuthHeader } from "/@/components/auth-header";
-import { Button } from "/@/components/ui/button";
-import { Card, CardContent } from "/@/components/ui/card";
-import { Heart, Users, GraduationCap, Stethoscope } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"
+import { AuthHeader } from "@/components/auth-header"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Heart, Users, GraduationCap, Stethoscope } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
 
 export default function HomePage() {
-  const router = useRouter();
+  const router = useRouter()
 
   const goToApadrinar = () => {
     try {
-      const role = localStorage.getItem("userRole");
-      if (role === "padrino") router.push("/apadrinamientos");
-      else router.push("/login?redirect=/apadrinamientos");
+      const role = localStorage.getItem("userRole")
+      if (role === "padrino") router.push("/apadrinamientos")
+      else router.push("/login?redirect=/apadrinamientos")
     } catch {
-      router.push("/login?redirect=/apadrinamientos");
+      router.push("/login?redirect=/apadrinamientos")
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,38 +38,19 @@ export default function HomePage() {
                 esperanza con nosotros.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-[#F6C344] hover:bg-[#F6C344]/90 text-[#1E1E1E] font-heading text-lg h-14"
-                >
+                <Button asChild size="lg" className="bg-[#F6C344] hover:bg-[#F6C344]/90 text-[#1E1E1E] font-heading text-lg h-14">
                   <Link href="/registro">Conviértete en Padrino</Link>
                 </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/10 font-heading text-lg h-14 bg-transparent"
-                >
+                <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/10 font-heading text-lg h-14 bg-transparent">
                   <Link href="/login">Iniciar Sesión</Link>
                 </Button>
-                <Button
-                  onClick={goToApadrinar}
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/10 font-heading text-lg h-14 bg-transparent"
-                >
+                <Button onClick={goToApadrinar} size="lg" variant="outline" className="border-white text-white hover:bg-white/10 font-heading text-lg h-14 bg-transparent">
                   Apadrinar
                 </Button>
               </div>
             </div>
             <div className="relative h-[400px] rounded-2xl overflow-hidden shadow-2xl">
-              <Image
-                src="/happy-children-in-colombia.jpg"
-                alt="Niños de Fundación Huahuacuna"
-                fill
-                className="object-cover"
-              />
+              <Image src="/happy-children-in-colombia.jpg" alt="Niños de Fundación Huahuacuna" fill className="object-cover" />
             </div>
           </div>
         </div>
@@ -156,17 +137,11 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-[#F6C344] to-[#5CA244]">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-white mb-6 text-balance">
-            Únete a Nuestra Misión
-          </h2>
-          <p className="text-xl text-white/90 mb-8 text-pretty">
-            Cada donación, cada hora de voluntariado, se traduce en oportunidades reales para los niños y sus familias.
-          </p>
-          <Button asChild size="lg" className="bg.white hover:bg-white/90 text-[#1C4E9A] font-heading text-lg h-14">
-            <Link href="/registro">Comenzar Ahora</Link>
-          </Button>
+          <h2 className="text-4xl md:text-5xl font-heading font-bold text-white mb-6 text-balance">Únete a Nuestra Misión</h2>
+          <p className="text-xl text-white/90 mb-8 text-pretty">Cada donación, cada hora de voluntariado, se traduce en oportunidades reales para los niños y sus familias.</p>
+          <Button asChild size="lg" className="bg-white hover:bg-white/90 text-[#1C4E9A] font-heading text-lg h-14"><Link href="/registro">Comenzar Ahora</Link></Button>
         </div>
       </section>
     </div>
-  );
+  )
 }
