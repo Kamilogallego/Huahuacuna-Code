@@ -1,4 +1,4 @@
-use client
+"use client"
 
 import { useState } from "react"
 import { AuthHeader } from "@/components/auth-header"
@@ -219,7 +219,7 @@ export default function ApadrinamientosPage() {
                   <CardContent>
                     <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{child.descripcion}</p>
                     <Button asChild className="w-full bg-[#1C4E9A] hover:bg-[#1C4E9A]/90 font-heading">
-                      <Link href={`/apadrinamientos/${child.id}`}> 
+                      <Link href={`/apadrinamientos/${child.id}`}>
                         <Heart className="mr-2 h-4 w-4" />
                         Ver Perfil
                       </Link>
