@@ -20,7 +20,8 @@ import {
 import { Heart, MapPin, Calendar, Filter, X, LogIn } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { CHILDREN } from "@/data/children"
+import { CHILDREN, type Child } from "@/data/children"
+import { getApadrinamientos } from "@/lib/services/apadrinamientos.service"
 
 const ITEMS_PER_PAGE = 12
 
@@ -72,28 +73,47 @@ export default function ApadrinamientosPage() {
     municipio: "",
   })
   const [currentPage, setCurrentPage] = useState(1)
+  const [children, setChildren] = useState<Child[]>([])
+  const [totalChildren, setTotalChildren] = useState(0)
+  const [loading, setLoading] = useState(false)
 
-  // Filter children using shared dataset; treat "all" as passthrough
-  const filteredChildren = CHILDREN.filter((child) => {
-    if (child.estado !== "disponible") return false
-    if (filters.edadMin && child.edad < Number.parseInt(filters.edadMin)) return false
-    if (filters.edadMax && child.edad > Number.parseInt(filters.edadMax)) return false
-    if (filters.genero && filters.genero !== "all" && child.genero !== filters.genero) return false
-    if (filters.municipio && filters.municipio !== "all" && child.municipio !== filters.municipio) return false
-    return true
-  })
+  // Fetch children from API when filters or page changes
+  useEffect(() => {
+    const fetchChildren = async () => {
+      setLoading(true)
+      try {
+        const response = await getApadrinamientos({
+          edadMin: filters.edadMin ? Number.parseInt(filters.edadMin) : undefined,
+          edadMax: filters.edadMax ? Number.parseInt(filters.edadMax) : undefined,
+          genero: filters.genero === "" || filters.genero === "all" ? "" : (filters.genero as "M" | "F"),
+          municipio: filters.municipio,
+          page: currentPage,
+          pageSize: ITEMS_PER_PAGE,
+        })
+        
+        setChildren(response.items)
+        setTotalChildren(response.total)
+      } catch (error) {
+        console.error("Failed to fetch children:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  // Pagination
-  const totalPages = Math.ceil(filteredChildren.length / ITEMS_PER_PAGE)
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const paginatedChildren = filteredChildren.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+    if (authChecked && authorized) {
+      fetchChildren()
+    }
+  }, [filters, currentPage, authChecked, authorized])
+
+  // Calculate total pages based on API response
+  const totalPages = Math.ceil(totalChildren / ITEMS_PER_PAGE)
 
   const clearFilters = () => {
     setFilters({ edadMin: "", edadMax: "", genero: "", municipio: "" })
     setCurrentPage(1)
   }
 
-  const hasActiveFilters = Object.values(filters).some((value) => value !== "")
+  const hasActiveFilters = Object.values(filters).some((value) => value !== "" && value !== "all")
 
   const municipios = Array.from(new Set(CHILDREN.map((child) => child.municipio))).sort()
 
@@ -127,7 +147,7 @@ export default function ApadrinamientosPage() {
               )}
             </div>
             <CardDescription>
-              {filteredChildren.length} {filteredChildren.length === 1 ? "niño encontrado" : "niños encontrados"}
+              {loading ? "Cargando..." : `${totalChildren} ${totalChildren === 1 ? "niño encontrado" : "niños encontrados"}`}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -166,10 +186,16 @@ export default function ApadrinamientosPage() {
         </Card>
 
         {/* Children Grid */}
-        {paginatedChildren.length > 0 ? (
+        {loading ? (
+          <Card className="py-16">
+            <CardContent className="text-center">
+              <p className="text-muted-foreground">Cargando niños disponibles...</p>
+            </CardContent>
+          </Card>
+        ) : children.length > 0 ? (
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-              {paginatedChildren.map((child) => (
+              {children.map((child) => (
                 <Card key={child.id} className="hover:shadow-xl transition-shadow overflow-hidden group">
                   <div className="relative h-64 overflow-hidden">
                     <Image src={child.foto || "/placeholder.svg"} alt={child.nombre} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
