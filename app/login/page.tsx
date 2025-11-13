@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { AuthHeader } from "@/components/auth-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,14 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, Lock, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  })
+  const searchParams = useSearchParams()
+  const [formData, setFormData] = useState({ email: "", password: "" })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [attempts, setAttempts] = useState(0)
@@ -34,16 +31,23 @@ export default function LoginPage() {
 
     setLoading(true)
 
-    // Simulate API call
     setTimeout(() => {
+      const redirect = searchParams.get("redirect") || undefined
+
       if (formData.email === "admin@huahuacuna.org" && formData.password === "Admin123") {
-        try { localStorage.setItem("userEmail", formData.email) } catch {}
+        try {
+          localStorage.setItem("userEmail", formData.email)
+          localStorage.setItem("userRole", "admin")
+        } catch {}
         setLoading(false)
         router.push("/dashboard")
       } else if (formData.email === "padrino@huahuacuna.org" && formData.password === "Padrino123") {
-        try { localStorage.setItem("userEmail", formData.email) } catch {}
+        try {
+          localStorage.setItem("userEmail", formData.email)
+          localStorage.setItem("userRole", "padrino")
+        } catch {}
         setLoading(false)
-        router.push("/perfil-apadrinador")
+        router.push(redirect || "/perfil-apadrinador")
       } else {
         const newAttempts = attempts + 1
         setAttempts(newAttempts)
@@ -51,7 +55,7 @@ export default function LoginPage() {
         if (newAttempts >= 5) {
           setError("Cuenta bloqueada temporalmente por 15 minutos debido a múltiples intentos fallidos")
         } else {
-          setError("Credenciales incorrectas. Por favor verifica tu email y contraseña.");
+          setError("Credenciales incorrectas. Por favor verifica tu email y contraseña.")
         }
         setLoading(false)
       }
@@ -59,7 +63,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F6C344]/10 via-background to-[#1C4E9A]/10"> 
+    <div className="min-h-screen bg-gradient-to-br from-[#F6C344]/10 via-background to-[#1C4E9A]/10">
       <AuthHeader />
       <main className="container mx-auto px-4 py-12 max-w-md">
         <div className="text-center mb-8">
@@ -82,9 +86,7 @@ export default function LoginPage() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="font-heading">
-                  Correo Electrónico
-                </Label>
+                <Label htmlFor="email" className="font-heading">Correo Electrónico</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -101,12 +103,8 @@ export default function LoginPage() {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="font-heading">
-                    Contraseña
-                  </Label>
-                  <Link href="/recuperar-password" className="text-sm text-[#1C4E9A] hover:underline">
-                    ¿Olvidaste tu contraseña?
-                  </Link>
+                  <Label htmlFor="password" className="font-heading">Contraseña</Label>
+                  <Link href="/recuperar-password" className="text-sm text-[#1C4E9A] hover:underline">¿Olvidaste tu contraseña?</Link>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -126,11 +124,7 @@ export default function LoginPage() {
                 <p className="text-sm text-[#C33B2A]">Intentos fallidos: {attempts}/5</p>
               )}
 
-              <Button
-                type="submit"
-                className="w-full bg-[#1C4E9A] hover:bg-[#1C4E9A]/90 font-heading text-base h-12"
-                disabled={loading || attempts >= 5}
-              >
+              <Button type="submit" className="w-full bg-[#1C4E9A] hover:bg-[#1C4E9A]/90 font-heading text-base h-12" disabled={loading || attempts >= 5}>
                 {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
               </Button>
 
@@ -143,12 +137,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full border-[#5CA244] text-[#5CA244] hover:bg-[#5CA244]/10 font-heading bg-transparent"
-                asChild
-              >
+              <Button type="button" variant="outline" className="w-full border-[#5CA244] text-[#5CA244] hover:bg-[#5CA244]/10 font-heading bg-transparent" asChild>
                 <Link href="/registro">Crear Cuenta de Padrino</Link>
               </Button>
             </form>
