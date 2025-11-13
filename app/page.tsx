@@ -1,11 +1,26 @@
-import { AuthHeader } from "@/components/auth-header"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Users, GraduationCap, Stethoscope } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+use client
+
+import { AuthHeader } from "/@/components/auth-header";
+import { Button } from "/@/components/ui/button";
+import { Card, CardContent } from "/@/components/ui/card";
+import { Heart, Users, GraduationCap, Stethoscope } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const router = useRouter();
+
+  const goToApadrinar = () => {
+    try {
+      const role = localStorage.getItem("userRole");
+      if (role === "padrino") router.push("/apadrinamientos");
+      else router.push("/login?redirect=/apadrinamientos");
+    } catch {
+      router.push("/login?redirect=/apadrinamientos");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AuthHeader />
@@ -37,6 +52,14 @@ export default function HomePage() {
                   className="border-white text-white hover:bg-white/10 font-heading text-lg h-14 bg-transparent"
                 >
                   <Link href="/login">Iniciar Sesión</Link>
+                </Button>
+                <Button
+                  onClick={goToApadrinar}
+                  size="lg"
+                  variant="outline"
+                  className="border-white text-white hover:bg-white/10 font-heading text-lg h-14 bg-transparent"
+                >
+                  Apadrinar
                 </Button>
               </div>
             </div>
@@ -139,11 +162,11 @@ export default function HomePage() {
           <p className="text-xl text-white/90 mb-8 text-pretty">
             Cada donación, cada hora de voluntariado, se traduce en oportunidades reales para los niños y sus familias.
           </p>
-          <Button asChild size="lg" className="bg-white hover:bg-white/90 text-[#1C4E9A] font-heading text-lg h-14">
+          <Button asChild size="lg" className="bg.white hover:bg-white/90 text-[#1C4E9A] font-heading text-lg h-14">
             <Link href="/registro">Comenzar Ahora</Link>
           </Button>
         </div>
       </section>
     </div>
-  )
+  );
 }
