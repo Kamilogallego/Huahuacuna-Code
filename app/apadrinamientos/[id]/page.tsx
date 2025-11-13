@@ -18,57 +18,29 @@ import { Heart, MapPin, Calendar, ArrowLeft, CheckCircle2, Mail } from "lucide-r
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { CHILDREN_BY_ID } from "@/data/children"
 
-type Child = {
-  id: string
-  nombre: string
-  edad: number
-  genero: "M" | "F"
-  municipio: string
-  descripcion: string
+type ChildDetail = {
   historiaCompleta: string
   necesidades: string[]
-  foto: string
-  estado: "disponible" | "apadrinado"
 }
 
-const MOCK_CHILDREN: Record<string, Child> = {
-  "1": {
-    id: "1",
-    nombre: "Sofía",
-    edad: 8,
-    genero: "F",
-    municipio: "Armenia",
-    descripcion: "Le encanta dibujar y sueña con ser artista. Necesita apoyo para continuar sus estudios.",
+function enrichChild(id: string) {
+  const base = CHILDREN_BY_ID[id]
+  if (!base) return null
+
+  const defaults: ChildDetail = {
     historiaCompleta:
-      "Sofía es una niña alegre y creativa de 8 años que vive en Armenia con su abuela. Desde pequeña ha mostrado un talento especial para el dibujo y la pintura. A pesar de las dificultades económicas de su familia, Sofía mantiene su espíritu positivo y sueña con algún día poder estudiar arte. Le encanta ir a la escuela y es muy aplicada en sus estudios. Su mayor deseo es poder tener materiales de arte para desarrollar su talento.",
+      `Esta es la historia de ${base.nombre}. Proviene de ${base.municipio} y sueña con un futuro mejor. ` +
+      `Gracias al programa de apadrinamiento, puede continuar desarrollando sus habilidades y estudios.`,
     necesidades: [
       "Matrícula y útiles escolares",
-      "Materiales de arte (pinturas, pinceles, papel)",
       "Uniforme y calzado escolar",
       "Apoyo nutricional",
     ],
-    foto: "/young-colombian-girl-smiling.jpg",
-    estado: "disponible",
-  },
-  "2": {
-    id: "2",
-    nombre: "Carlos",
-    edad: 10,
-    genero: "M",
-    municipio: "Calarcá",
-    descripcion: "Apasionado por el fútbol y las matemáticas. Busca oportunidades para desarrollar su potencial.",
-    historiaCompleta:
-      "Carlos tiene 10 años y vive en Calarcá con su madre y dos hermanos menores. Es un niño muy inteligente y responsable que ayuda a su mamá cuidando a sus hermanos. Le apasionan las matemáticas y el fútbol. Sueña con ser ingeniero y jugar profesionalmente. A pesar de las limitaciones económicas, Carlos se esfuerza mucho en la escuela y siempre busca aprender más.",
-    necesidades: [
-      "Matrícula y útiles escolares",
-      "Uniforme deportivo",
-      "Calzado escolar y deportivo",
-      "Apoyo en alimentación",
-    ],
-    foto: "/young-colombian-boy-smiling.jpg",
-    estado: "disponible",
-  },
+  }
+
+  return { ...base, ...defaults }
 }
 
 export default function ChildProfilePage({ params }: { params: { id: string } }) {
@@ -77,7 +49,7 @@ export default function ChildProfilePage({ params }: { params: { id: string } })
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const child = MOCK_CHILDREN[params.id]
+  const child = enrichChild(params.id)
 
   if (!child) {
     return (
@@ -101,19 +73,12 @@ export default function ChildProfilePage({ params }: { params: { id: string } })
 
   const handleConfirmSponsorship = async () => {
     setLoading(true)
-
-    // Simulate API call
     setTimeout(() => {
       setLoading(false)
       setIsConfirmDialogOpen(false)
       setIsSuccessDialogOpen(true)
-
-      // Simulate sending email and updating database
       console.log("[v0] Sponsorship confirmed for child:", child.id)
-      console.log("[v0] Email sent to sponsor")
-      console.log("[v0] Child status updated to 'apadrinado'")
-      console.log("[v0] Sponsor-child relationship created in database")
-    }, 2000)
+    }, 1500)
   }
 
   const handleSuccessClose = () => {
@@ -133,7 +98,7 @@ export default function ChildProfilePage({ params }: { params: { id: string } })
         </Button>
 
         <div className="grid md:grid-cols-5 gap-8">
-          {/* Left Column - Photo and Basic Info */}
+          {/* Columna izquierda - Foto e info básica */}
           <div className="md:col-span-2">
             <Card className="sticky top-6">
               <div className="relative h-96 overflow-hidden rounded-t-lg">
@@ -156,10 +121,7 @@ export default function ChildProfilePage({ params }: { params: { id: string } })
                 </div>
               </CardHeader>
               <CardContent>
-                <Button
-                  onClick={() => setIsConfirmDialogOpen(true)}
-                  className="w-full bg-[#C33B2A] hover:bg-[#C33B2A]/90 font-heading text-lg h-14"
-                >
+                <Button onClick={() => setIsConfirmDialogOpen(true)} className="w-full bg-[#C33B2A] hover:bg-[#C33B2A]/90 font-heading text-lg h-14">
                   <Heart className="mr-2 h-5 w-5" />
                   Apadrinar a {child.nombre}
                 </Button>
@@ -167,7 +129,7 @@ export default function ChildProfilePage({ params }: { params: { id: string } })
             </Card>
           </div>
 
-          {/* Right Column - Detailed Information */}
+          {/* Columna derecha - Detalle */}
           <div className="md:col-span-3 space-y-6">
             <Card>
               <CardHeader>
@@ -186,12 +148,12 @@ export default function ChildProfilePage({ params }: { params: { id: string } })
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {child.necesidades.map((necesidad, index) => (
-                    <li key={index} className="flex items-start gap-3">
+                  {child.necesidades.map((n, i) => (
+                    <li key={i} className="flex items-start gap-3">
                       <div className="mt-1 p-1 bg-[#5CA244] rounded-full">
                         <CheckCircle2 className="h-4 w-4 text-white" />
                       </div>
-                      <span className="text-muted-foreground">{necesidad}</span>
+                      <span className="text-muted-foreground">{n}</span>
                     </li>
                   ))}
                 </ul>
@@ -203,32 +165,17 @@ export default function ChildProfilePage({ params }: { params: { id: string } })
                 <CardTitle className="text-2xl font-heading">¿Qué incluye el apadrinamiento?</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                  <p className="text-white/90">Educación completa: matrícula, uniforme, útiles y transporte</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                  <p className="text-white/90">Atención médica y odontológica anual</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                  <p className="text-white/90">Vestido, calzado y artículos de aseo</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                  <p className="text-white/90">Actividades de esparcimiento y desarrollo integral</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                  <p className="text-white/90">Comunicación directa con administradores sobre el progreso</p>
-                </div>
+                <div className="flex items-start gap-3"><CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" /><p className="text-white/90">Educación completa: matrícula, uniforme, útiles y transporte</p></div>
+                <div className="flex items-start gap-3"><CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" /><p className="text-white/90">Atención médica y odontológica anual</p></div>
+                <div className="flex items-start gap-3"><CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" /><p className="text-white/90">Vestido, calzado y artículos de aseo</p></div>
+                <div className="flex items-start gap-3"><CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" /><p className="text-white/90">Actividades de esparcimiento y desarrollo integral</p></div>
+                <div className="flex items-start gap-3"><CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" /><p className="text-white/90">Comunicación directa con administradores sobre el progreso</p></div>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Confirmation Dialog */}
+        {/* Confirmación */}
         <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
           <DialogContent className="max-w-md">
             <DialogHeader>
@@ -243,63 +190,38 @@ export default function ChildProfilePage({ params }: { params: { id: string } })
                 </div>
                 <div>
                   <h3 className="font-heading font-semibold text-lg text-[#1C4E9A]">{child.nombre}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {child.edad} años - {child.municipio}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{child.edad} años - {child.municipio}</p>
                 </div>
               </div>
 
               <Alert className="bg-[#F6C344]/10 border-[#F6C344]">
                 <Heart className="h-4 w-4 text-[#C33B2A]" />
                 <AlertDescription className="text-foreground">
-                  Al confirmar, {child.nombre} será asignado a tu cuenta y recibirás un correo de confirmación con los
-                  próximos pasos.
+                  Al confirmar, {child.nombre} será asignado a tu cuenta y recibirás un correo de confirmación con los próximos pasos.
                 </AlertDescription>
               </Alert>
-
-              <div className="bg-muted p-4 rounded-lg space-y-2">
-                <h4 className="font-heading font-semibold text-sm">Tu compromiso incluye:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Apoyo mensual para las necesidades del niño</li>
-                  <li>• Seguimiento del progreso educativo</li>
-                  <li>• Comunicación con administradores</li>
-                </ul>
-              </div>
             </div>
 
             <DialogFooter className="flex-col sm:flex-row gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsConfirmDialogOpen(false)}
-                disabled={loading}
-                className="w-full sm:w-auto"
-              >
+              <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={loading} className="w-full sm:w-auto">
                 Cancelar
               </Button>
-              <Button
-                onClick={handleConfirmSponsorship}
-                disabled={loading}
-                className="w-full sm:w-auto bg-[#5CA244] hover:bg-[#5CA244]/90 font-heading"
-              >
+              <Button onClick={handleConfirmSponsorship} disabled={loading} className="w-full sm:w-auto bg-[#5CA244] hover:bg-[#5CA244]/90 font-heading">
                 {loading ? "Procesando..." : "Confirmar Apadrinamiento"}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
-        {/* Success Dialog */}
+        {/* Éxito */}
         <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <div className="mx-auto w-16 h-16 bg-[#5CA244] rounded-full flex items-center justify-center mb-4">
                 <CheckCircle2 className="w-10 h-10 text-white" />
               </div>
-              <DialogTitle className="text-2xl font-heading text-[#1C4E9A] text-center">
-                ¡Apadrinamiento Confirmado!
-              </DialogTitle>
-              <DialogDescription className="text-center">
-                Gracias por transformar la vida de {child.nombre}
-              </DialogDescription>
+              <DialogTitle className="text-2xl font-heading text-[#1C4E9A] text-center">¡Apadrinamiento Confirmado!</DialogTitle>
+              <DialogDescription className="text-center">Gracias por transformar la vida de {child.nombre}</DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
@@ -309,15 +231,6 @@ export default function ChildProfilePage({ params }: { params: { id: string } })
                   Hemos enviado un correo de confirmación con toda la información sobre tu apadrinamiento.
                 </AlertDescription>
               </Alert>
-
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-heading font-semibold text-sm mb-2">Próximos pasos:</h4>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>1. Revisa tu correo para detalles del apadrinamiento</li>
-                  <li>2. Accede al perfil completo de {child.nombre}</li>
-                  <li>3. Comunícate con administradores cuando lo necesites</li>
-                </ul>
-              </div>
             </div>
 
             <DialogFooter>
