@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AuthHeader } from "@/components/auth-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,38 +18,47 @@ import { Heart, MapPin, Calendar, ArrowLeft, CheckCircle2, Mail } from "lucide-r
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { CHILDREN_BY_ID } from "@/data/children"
-
-type ChildDetail = {
-  historiaCompleta: string
-  necesidades: string[]
-}
-
-function enrichChild(id: string) {
-  const base = CHILDREN_BY_ID[id]
-  if (!base) return null
-
-  const defaults: ChildDetail = {
-    historiaCompleta:
-      `Esta es la historia de ${base.nombre}. Proviene de ${base.municipio} y sueña con un futuro mejor. ` +
-      `Gracias al programa de apadrinamiento, puede continuar desarrollando sus habilidades y estudios.`,
-    necesidades: [
-      "Matrícula y útiles escolares",
-      "Uniforme y calzado escolar",
-      "Apoyo nutricional",
-    ],
-  }
-
-  return { ...base, ...defaults }
-}
+import { getApadrinamientoById, type ChildDetailResponse } from "@/lib/services/apadrinamientos.service"
 
 export default function ChildProfilePage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [child, setChild] = useState<ChildDetailResponse | null>(null)
+  const [fetchLoading, setFetchLoading] = useState(true)
 
-  const child = enrichChild(params.id)
+  // Fetch child details from API
+  useEffect(() => {
+    const fetchChild = async () => {
+      setFetchLoading(true)
+      try {
+        const data = await getApadrinamientoById(params.id)
+        setChild(data)
+      } catch (error) {
+        console.error("Failed to fetch child details:", error)
+      } finally {
+        setFetchLoading(false)
+      }
+    }
+
+    fetchChild()
+  }, [params.id])
+
+  if (fetchLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#F6C344]/10 via-background to-[#5CA244]/10">
+        <AuthHeader />
+        <main className="container mx-auto px-4 py-12 max-w-4xl">
+          <Card className="text-center py-16">
+            <CardContent>
+              <p className="text-muted-foreground">Cargando información del niño...</p>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    )
+  }
 
   if (!child) {
     return (

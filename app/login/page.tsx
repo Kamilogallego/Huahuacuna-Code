@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, Lock, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { login } from "@/lib/services/auth.service"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -34,28 +35,41 @@ export default function LoginPage() {
 
     setLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      if (formData.email === "admin@huahuacuna.org" && formData.password === "Admin123") {
-        try { localStorage.setItem("userEmail", formData.email) } catch {}
-        setLoading(false)
+    try {
+      // Call the backend auth service
+      const response = await login({
+        email: formData.email,
+        password: formData.password,
+      })
+
+      // Login successful - determine redirect based on user role
+      const userRole = response.user?.role
+
+      if (userRole === "admin") {
         router.push("/dashboard")
-      } else if (formData.email === "padrino@huahuacuna.org" && formData.password === "Padrino123") {
-        try { localStorage.setItem("userEmail", formData.email) } catch {}
-        setLoading(false)
+      } else if (userRole === "padrino") {
         router.push("/perfil-apadrinador")
       } else {
-        const newAttempts = attempts + 1
-        setAttempts(newAttempts)
-
-        if (newAttempts >= 5) {
-          setError("Cuenta bloqueada temporalmente por 15 minutos debido a múltiples intentos fallidos")
-        } else {
-          setError("Credenciales incorrectas. Por favor verifica tu email y contraseña.");
-        }
-        setLoading(false)
+        // Default redirect for other roles
+        router.push("/dashboard")
       }
-    }, 1000)
+    } catch (error: any) {
+      // Handle login errors
+      const newAttempts = attempts + 1
+      setAttempts(newAttempts)
+
+      if (newAttempts >= 5) {
+        setError("Cuenta bloqueada temporalmente por 15 minutos debido a múltiples intentos fallidos")
+      } else {
+        // Use error message from API if available, otherwise use generic message
+        const errorMessage =
+          error.response?.data?.message ||
+          "Credenciales incorrectas. Por favor verifica tu email y contraseña."
+        setError(errorMessage)
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
