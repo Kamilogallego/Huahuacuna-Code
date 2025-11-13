@@ -27,7 +27,7 @@ export function AuthHeader() {
         {/* Right CTA */}
         <div className="flex items-center gap-2">
           <Button asChild className="bg-[#F6C344] hover:bg-[#F6C344]/90 text-black font-heading">
-            <Link href="/perfil-apadrinador">Soy Padrino</Link>
+            <Link href="/login">Iniciar sesión</Link>
           </Button>
         </div>
       </div>
