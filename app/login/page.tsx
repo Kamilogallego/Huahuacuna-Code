@@ -37,8 +37,12 @@ export default function LoginPage() {
     // Simulate API call
     setTimeout(() => {
       if (formData.email === "admin@huahuacuna.org" && formData.password === "Admin123") {
+        try { localStorage.setItem("userEmail", formData.email) } catch {}
+        setLoading(false)
         router.push("/dashboard")
       } else if (formData.email === "padrino@huahuacuna.org" && formData.password === "Padrino123") {
+        try { localStorage.setItem("userEmail", formData.email) } catch {}
+        setLoading(false)
         router.push("/perfil-apadrinador")
       } else {
         const newAttempts = attempts + 1
@@ -47,7 +51,7 @@ export default function LoginPage() {
         if (newAttempts >= 5) {
           setError("Cuenta bloqueada temporalmente por 15 minutos debido a múltiples intentos fallidos")
         } else {
-          setError("Credenciales incorrectas. Por favor verifica tu email y contraseña.")
+          setError("Credenciales incorrectas. Por favor verifica tu email y contraseña.");
         }
         setLoading(false)
       }
@@ -55,7 +59,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F6C344]/10 via-background to-[#1C4E9A]/10">
+    <div className="min-h-screen bg-gradient-to-br from-[#F6C344]/10 via-background to-[#1C4E9A]/10"> 
       <AuthHeader />
       <main className="container mx-auto px-4 py-12 max-w-md">
         <div className="text-center mb-8">
