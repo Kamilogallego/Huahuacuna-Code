@@ -21,13 +21,14 @@ export function AuthHeader() {
           <Link href="/apadrinamientos" className="text-foreground/80 hover:text-foreground transition-colors">Apadrinamientos</Link>
           <Link href="/donaciones" className="text-foreground/80 hover:text-foreground transition-colors">Donaciones</Link>
           <Link href="/voluntariado" className="text-foreground/80 hover:text-foreground transition-colors">Voluntariado</Link>
+          <Link href="/eventos" className="text-foreground/80 hover:text-foreground transition-colors">Eventos</Link>
           <Link href="/acerca-de" className="text-foreground/80 hover:text-foreground transition-colors">Acerca de</Link>
         </nav>
 
         {/* Right CTA */}
         <div className="flex items-center gap-2">
-          <Button asChild className="bg-[#F6C344] hover:bg-[#F6C344]/90 text-black font-heading">
-            <Link href="/perfil-apadrinador">Soy Padrino</Link>
+          <Button asChild className="bg-[#1C4E9A] hover:bg-[#1C4E9A]/90 text-white font-heading">
+            <Link href="/login">Iniciar sesión</Link>
           </Button>
         </div>
       </div>
