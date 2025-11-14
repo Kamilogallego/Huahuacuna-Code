@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { AuthHeader } from "@/components/auth-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,6 +9,7 @@ import { ChatNotificationBadge } from "@/components/chat-notification-badge"
 import { Heart, MessageCircle, Calendar, MapPin } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { getMySponsorships } from "@/lib/services/sponsorships.service"
 
 type SponsoredChild = {
   id: string
@@ -32,6 +34,53 @@ const MOCK_SPONSORED_CHILDREN: SponsoredChild[] = [
 ]
 
 export default function MisApadrinamientosPage() {
+  const [children, setChildren] = useState<SponsoredChild[]>(MOCK_SPONSORED_CHILDREN)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchMySponsorships = async () => {
+      setLoading(true)
+      try {
+        // Obtener padrinoId desde localStorage (conservando comportamiento actual del sistema)
+        const rawUserId = typeof window !== "undefined" ? localStorage.getItem("userId") : null
+        const padrinoId = rawUserId ? Number.parseInt(rawUserId) : NaN
+
+        if (!padrinoId || Number.isNaN(padrinoId)) {
+          // Si no hay userId, mantenemos el mock y salimos sin romper la vista
+          return
+        }
+
+        const response = await getMySponsorships({
+          padrinoId,
+          page: 1,
+          limit: 50,
+          activeOnly: true,
+        })
+
+        // Adaptar datos de API al shape SponsoredChild sin cambiar la UI
+        const mapped: SponsoredChild[] = response.data.map((item: any) => ({
+          id: String(item.id ?? item.childId ?? ""),
+          nombre: item.childName ?? item.child?.name ?? "Niño",
+          edad: item.childAge ?? item.child?.age ?? 0,
+          municipio: item.municipality ?? item.child?.municipality ?? "",
+          foto: item.childPhoto ?? item.child?.photo ?? "/young-colombian-girl-smiling.jpg",
+          fechaApadrinamiento: item.startDate ?? new Date().toISOString(),
+          ultimaActualizacion: item.lastUpdate ?? item.updatedAt ?? item.startDate ?? new Date().toISOString(),
+        }))
+
+        if (mapped.length > 0) {
+          setChildren(mapped)
+        }
+      } catch (error) {
+        console.warn("Falling back to mock sponsored children due to API error", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMySponsorships()
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F6C344]/10 via-background to-[#5CA244]/10">
       <AuthHeader />

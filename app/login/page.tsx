@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, Lock, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { login } from "@/lib/services/auth.service"
+import { loginUser } from "@/lib/loginUser"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,36 +36,32 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Call the backend auth service
-      const response = await login({
-        email: formData.email,
-        password: formData.password,
-      })
+      // Llamar al nuevo endpoint de autenticación usando fetch y NEXT_PUBLIC_API_URL
+      const accessToken = await loginUser(formData.email, formData.password)
 
-      // Login successful - determine redirect based on user role
-      const userRole = response.user?.role
-
-      if (userRole === "admin") {
-        router.push("/dashboard")
-      } else if (userRole === "padrino") {
-        router.push("/perfil-apadrinador")
-      } else {
-        // Default redirect for other roles
-        router.push("/dashboard")
+      // Guardar el token en localStorage (solo en cliente)
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("authToken", accessToken)
+        } catch (storageError) {
+          console.warn("No se pudo guardar el token de autenticación:", storageError)
+        }
       }
-    } catch (error: any) {
-      // Handle login errors
+
+      // Redirigir después de un login exitoso (ajusta la ruta según tu flujo)
+      router.push("/dashboard")
+    } catch (err: unknown) {
       const newAttempts = attempts + 1
       setAttempts(newAttempts)
 
       if (newAttempts >= 5) {
         setError("Cuenta bloqueada temporalmente por 15 minutos debido a múltiples intentos fallidos")
       } else {
-        // Use error message from API if available, otherwise use generic message
-        const errorMessage =
-          error.response?.data?.message ||
-          "Credenciales incorrectas. Por favor verifica tu email y contraseña."
-        setError(errorMessage)
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Credenciales incorrectas. Por favor verifica tu email y contraseña."
+        setError(message)
       }
     } finally {
       setLoading(false)

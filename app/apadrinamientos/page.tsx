@@ -21,7 +21,7 @@ import { Heart, MapPin, Calendar, Filter, X, LogIn } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { CHILDREN, type Child } from "@/data/children"
-import { getApadrinamientos } from "@/lib/services/apadrinamientos.service"
+import { filterChildren } from "@/lib/services/children.service"
 
 const ITEMS_PER_PAGE = 12
 
@@ -82,16 +82,22 @@ export default function ApadrinamientosPage() {
     const fetchChildren = async () => {
       setLoading(true)
       try {
-        const response = await getApadrinamientos({
-          edadMin: filters.edadMin ? Number.parseInt(filters.edadMin) : undefined,
-          edadMax: filters.edadMax ? Number.parseInt(filters.edadMax) : undefined,
-          genero: filters.genero === "" || filters.genero === "all" ? "" : (filters.genero as "M" | "F"),
-          municipio: filters.municipio,
+        const response = await filterChildren({
+          minAge: filters.edadMin ? Number.parseInt(filters.edadMin) : undefined,
+          maxAge: filters.edadMax ? Number.parseInt(filters.edadMax) : undefined,
+          gender:
+            filters.genero === "" || filters.genero === "all"
+              ? undefined
+              : (filters.genero === "M" ? "MALE" : "FEMALE"),
+          municipality:
+            filters.municipio === "" || filters.municipio === "all"
+              ? undefined
+              : filters.municipio,
           page: currentPage,
-          pageSize: ITEMS_PER_PAGE,
+          limit: ITEMS_PER_PAGE,
         })
-        
-        setChildren(response.items)
+
+        setChildren(response.data as Child[])
         setTotalChildren(response.total)
       } catch (error) {
         console.error("Failed to fetch children:", error)

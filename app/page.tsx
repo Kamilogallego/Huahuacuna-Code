@@ -34,8 +34,8 @@ export default function Home() {
 
           <div className="flex-1 flex items-center justify-center">
             <Image
-              src="/children-hero.jpg"
-              alt="Niños"
+              src="/happy-children-in-colombia.jpg"
+              alt="Niños corriendo"
               width={520}
               height={320}
               className="rounded-lg shadow-lg object-cover"
