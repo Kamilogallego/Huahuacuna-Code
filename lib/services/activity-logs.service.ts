@@ -1,11 +1,14 @@
 import apiClient from "../api"
 
 // 1. Crear registro de actividad
+// POST /activity-logs
 export type ActivityType =
-  | "CHILD_UPDATE"
-  | "SPONSORSHIP_CREATED"
-  | "SPONSORSHIP_UPDATED"
-  | "SPONSORSHIP_CANCELLED"
+  | 'SPONSORSHIP_STARTED'
+  | 'SPONSORSHIP_ENDED'
+  | 'CHAT_MESSAGE'
+  | 'CHILD_UPDATE'
+  | 'DONATION'
+  | 'MILESTONE'
   | string
 
 export interface CreateActivityLogDto {
@@ -15,7 +18,6 @@ export interface CreateActivityLogDto {
   childId?: number
   sponsorshipId?: number
   metadata?: Record<string, unknown>
-  performedBy?: number
 }
 
 export interface ActivityLog {
@@ -36,42 +38,42 @@ export interface PaginationParams {
   limit?: number
 }
 
-export interface PaginatedActivityLogs extends PaginationParams {
+export interface PaginatedActivityLogs {
   data: ActivityLog[]
   total: number
+  page: number
+  limit: number
   totalPages: number
 }
 
 // 2. Obtener actividades de un niño
+// GET /activity-logs/child/:childId
 export async function getActivityLogsByChild(
   childId: number,
   params: PaginationParams = {},
 ): Promise<PaginatedActivityLogs> {
   const response = await apiClient.get<PaginatedActivityLogs>(
-    `/activity-logs/by-child/${childId}`,
+    `/activity-logs/child/${childId}`,
     { params },
   )
   return response.data
 }
 
 // 3. Obtener actividades de un apadrinamiento
-export interface GetActivityLogsBySponsorshipParams extends PaginationParams {
-  userId: number
-  userRole: string
-}
-
+// GET /activity-logs/sponsorship/:sponsorshipId
 export async function getActivityLogsBySponsorship(
   sponsorshipId: number,
-  params: GetActivityLogsBySponsorshipParams,
+  params: PaginationParams = {},
 ): Promise<PaginatedActivityLogs> {
   const response = await apiClient.get<PaginatedActivityLogs>(
-    `/activity-logs/by-sponsorship/${sponsorshipId}`,
+    `/activity-logs/sponsorship/${sponsorshipId}`,
     { params },
   )
   return response.data
 }
 
 // 4. Obtener actividades recientes
+// GET /activity-logs/recent
 export interface GetRecentActivityLogsParams extends PaginationParams {
   type?: ActivityType
 }

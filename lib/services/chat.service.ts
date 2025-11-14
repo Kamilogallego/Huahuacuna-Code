@@ -1,9 +1,9 @@
 import apiClient from "../api"
 
 // 1. Crear conversación
+// POST /chat/conversations, Body: { sponsorshipId }
 export interface CreateConversationDto {
   sponsorshipId: number
-  padrinoId: number
 }
 
 export interface Conversation {
@@ -19,11 +19,10 @@ export async function createConversation(
 }
 
 // 2. Enviar mensaje
+// POST /chat/messages, Body: { conversationId, content }
 export interface SendMessageDto {
   conversationId: number
-  senderId: number
   content: string
-  senderRole: string
 }
 
 export interface Message {
@@ -37,10 +36,9 @@ export async function sendMessage(dto: SendMessageDto): Promise<Message> {
 }
 
 // 3. Obtener mensajes de una conversación
+// GET /chat/conversations/:conversationId/messages
 export interface GetMessagesParams {
   conversationId: number
-  userId: number
-  userRole: string
   page?: number
   limit?: number
 }
@@ -56,14 +54,17 @@ export interface PaginatedMessages {
 export async function getMessages(
   params: GetMessagesParams,
 ): Promise<PaginatedMessages> {
-  const response = await apiClient.get<PaginatedMessages>("/chat/messages", { params })
+  const { conversationId, ...query } = params
+  const response = await apiClient.get<PaginatedMessages>(
+    `/chat/conversations/${conversationId}/messages`,
+    { params: query },
+  )
   return response.data
 }
 
-// 4. Obtener mis conversaciones
+// 4. Obtener conversaciones
+// GET /chat/conversations, Query: page, limit
 export interface GetMyConversationsParams {
-  userId: number
-  userRole: string
   page?: number
   limit?: number
 }
@@ -79,20 +80,19 @@ export interface PaginatedConversations {
 }
 
 export async function getMyConversations(
-  params: GetMyConversationsParams,
+  params: GetMyConversationsParams = {},
 ): Promise<PaginatedConversations> {
   const response = await apiClient.get<PaginatedConversations>(
-    "/chat/my-conversations",
+    "/chat/conversations",
     { params },
   )
   return response.data
 }
 
 // 5. Marcar mensajes como leídos
+// POST /chat/conversations/:conversationId/read
 export interface MarkAsReadDto {
   conversationId: number
-  userId: number
-  userRole: string
 }
 
 export interface MarkAsReadResponse {
@@ -103,13 +103,14 @@ export async function markMessagesAsRead(
   dto: MarkAsReadDto,
 ): Promise<MarkAsReadResponse> {
   const response = await apiClient.post<MarkAsReadResponse>(
-    "/chat/mark-as-read",
-    dto,
+    `/chat/conversations/${dto.conversationId}/read`,
+    {},
   )
   return response.data
 }
 
 // 6. Obtener conteo de mensajes no leídos
+// GET /chat/unread-count
 export interface GetUnreadCountParams {
   userId: number
   conversationId?: number
