@@ -1,10 +1,12 @@
 import apiClient from "../api"
 
 // 1. Crear solicitud de apadrinamiento
+// POST /sponsorships/requests
+// Body oficial: { childId, reason }
+// El padrino se infiere del token en el backend
 export interface CreateSponsorshipRequestDto {
   childId: number
-  userId: number
-  reason?: string
+  reason: string
 }
 
 export interface SponsorshipRequestResponse {
@@ -15,9 +17,14 @@ export interface SponsorshipRequestResponse {
 export async function createSponsorshipRequest(
   dto: CreateSponsorshipRequestDto
 ): Promise<SponsorshipRequestResponse> {
+  const payload = {
+    childId: dto.childId,
+    reason: dto.reason,
+  }
+
   const response = await apiClient.post<SponsorshipRequestResponse>(
     "/sponsorships/requests",
-    dto,
+    payload,
   )
   return response.data
 }
@@ -98,36 +105,33 @@ export async function getMySponsorships(
 }
 
 // 6. Obtener detalles de apadrinamiento
-export interface GetSponsorshipDetailsParams {
-  sponsorshipId: number
-  userId: number
-  userRole: string
-}
-
+// GET /sponsorships/:id
 export interface SponsorshipDetails {
   id: number
   [key: string]: unknown
 }
 
 export async function getSponsorshipDetails(
-  params: GetSponsorshipDetailsParams,
+  sponsorshipId: number,
 ): Promise<SponsorshipDetails> {
-  const response = await apiClient.get<SponsorshipDetails>("/sponsorships/details", {
-    params,
-  })
+  const response = await apiClient.get<SponsorshipDetails>(
+    `/sponsorships/${sponsorshipId}`,
+  )
   return response.data
 }
 
 // 7. Cancelar apadrinamiento
+// POST /sponsorships/:id/cancel
 export interface CancelSponsorshipDto {
   sponsorshipId: number
-  userId: number
-  userRole: string
   cancellationReason: string
 }
 
 export async function cancelSponsorship(dto: CancelSponsorshipDto): Promise<void> {
-  await apiClient.post("/sponsorships/cancel", dto)
+  await apiClient.post(
+    `/sponsorships/${dto.sponsorshipId}/cancel`,
+    { cancellationReason: dto.cancellationReason },
+  )
 }
 
 // 8. Obtener historial de apadrinamientos (admin)
