@@ -36,7 +36,40 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Usar el servicio de autenticación centralizado
+      // 1) Modo demo: credenciales quemadas solo en el frontend
+      //    Esto permite probar el flujo sin depender del backend.
+      const email = formData.email.trim().toLowerCase()
+      const password = formData.password
+
+      const isDemoAdmin =
+        email === "admin@huahuacuna.org" && password === "Admin123"
+      const isDemoPadrino =
+        email === "padrino@huahuacuna.org" && password === "Padrino123"
+
+      if (isDemoAdmin || isDemoPadrino) {
+        if (typeof window !== "undefined") {
+          try {
+            // Simular respuesta de backend
+            const role = isDemoAdmin ? "ADMIN" : "PADRINO"
+            localStorage.setItem("authToken", "demo-token")
+            localStorage.setItem("userEmail", email)
+            localStorage.setItem("userRole", role.toLowerCase())
+            localStorage.setItem("userId", isDemoAdmin ? "1" : "2")
+          } catch (storageError) {
+            console.warn("No se pudo guardar el estado de sesión demo:", storageError)
+          }
+        }
+
+        if (isDemoAdmin) {
+          router.push("/dashboard")
+        } else {
+          router.push("/perfil-apadrinador")
+        }
+
+        return
+      }
+
+      // 2) Flujo normal: usar el servicio de autenticación contra el gateway
       const response = await login({
         email: formData.email,
         password: formData.password,
@@ -75,6 +108,26 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-[#F6C344]/10 via-background to-[#1C4E9A]/10"> 
       <AuthHeader />
       <main className="container mx-auto px-4 py-12 max-w-md">
+        {/* Si ya hay sesión iniciada, mostrar un botón para volver al panel correspondiente */}
+        {typeof window !== "undefined" && localStorage.getItem("userRole") && (
+          <div className="mb-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="text-sm"
+              onClick={() => {
+                const role = localStorage.getItem("userRole")
+                if (role === "padrino") {
+                  router.push("/perfil-apadrinador")
+                } else {
+                  router.push("/dashboard")
+                }
+              }}
+            >
+              Volver sin cerrar sesión
+            </Button>
+          </div>
+        )}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-[#1C4E9A] mb-4">Bienvenido</h1>
           <p className="text-lg text-muted-foreground text-pretty">Inicia sesión para continuar transformando vidas</p>

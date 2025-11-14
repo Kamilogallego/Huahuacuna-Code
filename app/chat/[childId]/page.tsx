@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import * as React from "react"
 
 import { useState, useEffect, useRef } from "react"
 import { AuthHeader } from "@/components/auth-header"
@@ -80,6 +80,9 @@ const MOCK_MESSAGES: Message[] = [
 ]
 
 export default function ChatPage({ params }: { params: { childId: string } }) {
+  // Next.js 16: params es una Promise en componentes cliente, se debe envolver con React.use
+  const { childId } = React.use(params)
+
   const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES)
   const [newMessage, setNewMessage] = useState("")
   const [settings, setSettings] = useState<ChatSettings>({
@@ -194,7 +197,7 @@ export default function ChatPage({ params }: { params: { childId: string } }) {
       <AuthHeader />
       <main className="container mx-auto px-4 py-12 max-w-5xl">
         <Button variant="ghost" asChild className="mb-6 text-[#1C4E9A] hover:text-[#1C4E9A]/80">
-          <Link href={`/mis-apadrinamientos/${params.childId}`}>
+          <Link href={`/mis-apadrinamientos/${childId}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Volver al Perfil
           </Link>

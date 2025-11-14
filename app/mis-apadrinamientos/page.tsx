@@ -34,19 +34,19 @@ const MOCK_SPONSORED_CHILDREN: SponsoredChild[] = [
 ]
 
 export default function MisApadrinamientosPage() {
-  const [children, setChildren] = useState<SponsoredChild[]>(MOCK_SPONSORED_CHILDREN)
+  // Por defecto no mostramos ningún niño hasta tener datos reales o mocks explícitos
+  const [children, setChildren] = useState<SponsoredChild[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const fetchMySponsorships = async () => {
       setLoading(true)
       try {
-        // Obtener padrinoId desde localStorage (conservando comportamiento actual del sistema)
         const rawUserId = typeof window !== "undefined" ? localStorage.getItem("userId") : null
         const padrinoId = rawUserId ? Number.parseInt(rawUserId) : NaN
 
         if (!padrinoId || Number.isNaN(padrinoId)) {
-          // Si no hay userId, mantenemos el mock y salimos sin romper la vista
+          // Si no hay userId, dejamos children vacío para mostrar el estado de "sin apadrinamientos"
           return
         }
 
@@ -68,11 +68,9 @@ export default function MisApadrinamientosPage() {
           ultimaActualizacion: item.lastUpdate ?? item.updatedAt ?? item.startDate ?? new Date().toISOString(),
         }))
 
-        if (mapped.length > 0) {
-          setChildren(mapped)
-        }
+        setChildren(mapped)
       } catch (error) {
-        console.warn("Falling back to mock sponsored children due to API error", error)
+        console.warn("No se pudieron cargar los apadrinamientos del padrino", error)
       } finally {
         setLoading(false)
       }
@@ -95,9 +93,15 @@ export default function MisApadrinamientosPage() {
           </Button>
         </div>
 
-        {MOCK_SPONSORED_CHILDREN.length > 0 ? (
+        {loading ? (
+          <Card className="py-16">
+            <CardContent className="text-center">
+              <p className="text-muted-foreground">Cargando tus apadrinamientos...</p>
+            </CardContent>
+          </Card>
+        ) : children.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MOCK_SPONSORED_CHILDREN.map((child) => (
+            {children.map((child) => (
               <Card key={child.id} className="hover:shadow-xl transition-shadow overflow-hidden">
                 <div className="relative h-64 overflow-hidden">
                   <Image src={child.foto || "/placeholder.svg"} alt={child.nombre} fill className="object-cover" />

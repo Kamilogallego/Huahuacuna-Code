@@ -1,8 +1,42 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 
 export function AuthHeader() {
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    try {
+      const role = localStorage.getItem("userRole")
+      const email = localStorage.getItem("userEmail")
+      setUserRole(role)
+      setUserEmail(email)
+    } catch (error) {
+      console.warn("No se pudo leer el estado de sesión desde localStorage:", error)
+    }
+  }, [])
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("authToken")
+        localStorage.removeItem("userEmail")
+        localStorage.removeItem("userRole")
+        localStorage.removeItem("userId")
+      } catch (error) {
+        console.warn("No se pudo limpiar el estado de sesión:", error)
+      }
+      window.location.href = "/"
+    }
+  }
+
+  const isLoggedIn = Boolean(userRole)
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur">
       <div className="container mx-auto flex items-center justify-between max-w-7xl px-4 py-3">
@@ -27,9 +61,26 @@ export function AuthHeader() {
 
         {/* Right CTA */}
         <div className="flex items-center gap-2">
-          <Button asChild className="bg-[#1C4E9A] hover:bg-[#1C4E9A]/90 text-white font-heading">
-            <Link href="/login">Iniciar sesión</Link>
-          </Button>
+          {isLoggedIn ? (
+            <>
+              {userEmail && (
+                <span className="hidden sm:inline text-xs text-muted-foreground mr-2">
+                  Sesión iniciada como <span className="font-semibold">{userEmail}</span>
+                </span>
+              )}
+              <Button
+                type="button"
+                onClick={handleLogout}
+                className="bg-[#C33B2A] hover:bg-[#C33B2A]/90 text-white font-heading"
+              >
+                Cerrar sesión
+              </Button>
+            </>
+          ) : (
+            <Button asChild className="bg-[#1C4E9A] hover:bg-[#1C4E9A]/90 text-white font-heading">
+              <Link href="/login">Iniciar sesión</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>
