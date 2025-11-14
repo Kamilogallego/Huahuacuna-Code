@@ -4,20 +4,28 @@ import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axio
  * API Client for Huahuacuna Backend Services
  * 
  * This client handles communication with the backend gateway.
- * - In the browser: uses '/api' path which is rewritten to the gateway URL by Next.js
- * - On the server (SSR): uses the full gateway URL from NEXT_PUBLIC_API_URL
+ * - Uses NEXT_PUBLIC_API_URL cuando está definida (tanto en cliente como en servidor)
+ * - Si no está definida, en servidor usa 'http://localhost:8080' y en cliente '/api'
  * - Supports cookie-based auth with withCredentials
  * - Automatically adds JWT token from localStorage if available
  */
 
 // Determine the base URL based on environment
 function getBaseURL(): string {
-  // Server-side: use the full gateway URL
-  if (typeof window === 'undefined') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+  const envBase = process.env.NEXT_PUBLIC_API_URL
+
+  // If we have an explicit gateway URL, always use it
+  if (envBase && envBase.length > 0) {
+    return envBase
   }
-  
-  // Client-side: use '/api' which will be proxied by Next.js rewrites
+
+  // Fallbacks when NEXT_PUBLIC_API_URL is not set
+  if (typeof window === 'undefined') {
+    // Server-side default
+    return 'http://localhost:8080'
+  }
+
+  // Client-side default: rely on Next.js rewrites for '/api'
   return '/api'
 }
 
