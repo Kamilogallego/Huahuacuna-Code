@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, Lock, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { loginUser } from "@/lib/loginUser"
+import { login } from "@/lib/services/auth.service"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,20 +36,23 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Llamar al nuevo endpoint de autenticación usando fetch y NEXT_PUBLIC_API_URL
-      const accessToken = await loginUser(formData.email, formData.password)
+      // Usar el servicio de autenticación centralizado
+      const response = await login({
+        email: formData.email,
+        password: formData.password,
+      })
 
-      // Guardar el token en localStorage (solo en cliente)
-      if (typeof window !== "undefined") {
-        try {
-          localStorage.setItem("authToken", accessToken)
-        } catch (storageError) {
-          console.warn("No se pudo guardar el token de autenticación:", storageError)
-        }
+      // Determinar redirección según rol (manteniendo el flujo de antes)
+      const userRole = response.user?.role
+
+      if (userRole === "admin" || userRole === "ADMIN") {
+        router.push("/dashboard")
+      } else if (userRole === "padrino" || userRole === "PADRINO") {
+        router.push("/perfil-apadrinador")
+      } else {
+        // Redirección por defecto si no hay rol conocido
+        router.push("/dashboard")
       }
-
-      // Redirigir después de un login exitoso (ajusta la ruta según tu flujo)
-      router.push("/dashboard")
     } catch (err: unknown) {
       const newAttempts = attempts + 1
       setAttempts(newAttempts)
